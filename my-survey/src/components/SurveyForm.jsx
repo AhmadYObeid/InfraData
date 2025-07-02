@@ -52,6 +52,11 @@ export default function SurveyForm() {
 
     // Basic required checks for all except optional/custom fields
     Object.entries(form).forEach(([key, value]) => {
+      // skip “instances” if custom value entered
+      if (key === 'instances' && form.instancesCustom.trim()) return;
+      // skip “dbSizeValue” if custom entered
+      if (key === 'dbSizeValue' && form.dbSizeCustom.trim()) return;
+
       if (
         !value &&
         !key.endsWith('Custom') &&

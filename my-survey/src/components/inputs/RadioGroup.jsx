@@ -13,7 +13,7 @@ export default function RadioGroup({ label, options, value, onChange, error }) {
               value={opt}
               checked={value === opt}
               onChange={() => onChange(opt)}
-              className="form-radio text-blue-600"
+              className="w-full border border-gray-300 rounded px-4 py-2 mt-1form-radio text-blue-600"
             />
             <span className="ml-2 font-medium">{opt}</span>
           </label>

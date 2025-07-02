@@ -1,7 +1,7 @@
 export default function TextArea({ label, value, onChange, error, placeholder }) {
   return (
     <div className="flex flex-col text-left mb-4">
-      <label className={`font-semibold mb-1 ${error ? 'text-red-600' : 'text-gray-800'} dark:text-black`}>
+      <label className={`font-semibold mb-1 ${error ? 'text-red-600' : 'text-black'}`}>
         {label}
       </label>
       <textarea

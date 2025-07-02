@@ -117,6 +117,20 @@ export default function SurveyForm() {
       valid = false;
     }
 
+    // Q8: Validate go-live date range
+    if (form.goLive) {
+      const goLiveDate = new Date(form.goLive);
+      const minDateObj = new Date(today);
+      const maxDateObj = new Date(maxDate);
+      if (goLiveDate < minDateObj || goLiveDate > maxDateObj) {
+        toast.error('Please correct the highlighted errors.', {
+          style: { background: '#fee2e2', color: '#991b1b' }
+        });
+        newErrors.goLive = true;
+        valid = false;
+      }
+    }
+
     // Q11: syncRequiredDetails mandatory if syncRequired = Yes
     if (form.syncRequired === 'Yes' && !form.syncRequiredDetails.trim()) {
       newErrors.syncRequiredDetails = true;
@@ -176,30 +190,30 @@ export default function SurveyForm() {
   })();
 
   return (
-    <div className="max-w-xl w-full">
+    <div className="bg-white shadow-xl rounded-xl p-8 max-w-xl w-full">
       <Toaster position="bottom-right" />
-      <div className="flex justify-center mb-6">
-        <img src="/logo.svg" alt="Company Logo" className="h-16 drop-shadow-lg" />
-      </div>
-      <h2 className="text-3xl font-extrabold text-gray-800 mb-6 text-left">
-        SQL Server Migration Assessment
-      </h2>
+        <div className="flex justify-center mb-6">
+          <img src="/logo.svg" alt="Company Logo" className="h-16 drop-shadow-lg" />
+        </div>
+        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+          SQL Server Migration Assessment
+        </h2>
 
-      <QuestionGroup
-        form={form}
-        errors={errors}
-        onChange={handleChange}
-        today={today}
-        maxDate={maxDate}
-      />
+        <QuestionGroup
+          form={form}
+          errors={errors}
+          onChange={handleChange}
+          today={today}
+          maxDate={maxDate}
+        />
 
-      <button
-        className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold text-lg hover:bg-blue-700 transition duration-300 mt-6"
-        onClick={handleSubmit}
-        disabled={submitted}
-      >
-        {submitted ? 'Submission Complete' : 'Submit Assessment'}
-      </button>
+        <button
+          className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold text-lg hover:bg-blue-700 transition duration-300 mt-6"
+          onClick={handleSubmit}
+          disabled={submitted}
+        >
+          {submitted ? 'Submission Complete' : 'Submit Assessment'}
+        </button>
     </div>
   );
 }

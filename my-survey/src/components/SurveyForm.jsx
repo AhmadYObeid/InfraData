@@ -158,7 +158,12 @@ export default function SurveyForm() {
     return valid;
   };
 
-  const handleSubmit = () => {
+  // read in your env values
+  const FUNCTION_URL = import.meta.env.VITE_EMAIL_FUNCTION_URL;
+  const EMAIL_TO     = import.meta.env.VITE_EMAIL_TO || 'ahmed.obeid@zaintech.com';
+
+  const handleSubmit = async () => {
+    // run your existing validation
     if (!validateForm()) {
       toast.error('Please correct the highlighted errors.', {
         style: { background: '#fee2e2', color: '#991b1b' }
@@ -167,23 +172,61 @@ export default function SurveyForm() {
     }
 
     setSubmitted(true);
-    toast.success('Form submitted successfully!', {
-      style: { background: '#dcfce7', color: '#166534' }
+    toast.success('Sending your responses…', {
+      style: { background: '#bfdbfe', color: '#1e40af' }
     });
 
-    const emailBody = formatEmailBody({
-      ...form,
-      infrastructure:
-        form.infrastructure === 'Other Cloud'
-          ? `Other Cloud: ${form.infrastructureOtherText}`
-          : form.infrastructure,
-      instances: form.instancesCustom.trim() || form.instances,
-      dbSizeValue: form.dbSizeCustom.trim() || form.dbSizeValue + ' ' + form.dbSizeUnit,
-    });
+    // build a human-readable, parseable body
+    // pass the submitter email as second arg
+    const emailBody = formatEmailBody(
+      {
+        ...form,
+        infrastructure:
+          form.infrastructure === 'Other Cloud'
+            ? `Other Cloud: ${form.infrastructureOtherText}`
+            : form.infrastructure,
+        instances: form.instancesCustom.trim() || form.instances,
+        dbSizeValue:
+          form.dbSizeCustom.trim()
+            ? `${form.dbSizeCustom} ${form.dbSizeUnit}`
+            : `${form.dbSizeValue} ${form.dbSizeUnit}`,
+      },
+      EMAIL_TO
+    );
 
-    console.log('Email to: Ahmed.Obeid@zaintech.com\n' + emailBody);
+    console.log('🌐 sending to:', FUNCTION_URL)
+    try {
+        const payload = {
+          // required by your email function:
+          name:        'ahmed.obeid@zaintech.com',
+          email:       'ahmed.obeid@zaintech.com',
+          toEmail:     EMAIL_TO,
+          companyName: 'MyWebAhmed',
+          message:     emailBody,
+        }
+        console.log('📨 payload:', payload)
 
-    setTimeout(() => setSubmitted(false), 5000);
+        const res = await fetch(FUNCTION_URL, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify(payload),
+        })
+        if (!res.ok) {
+          const txt = await res.text()
+          throw new Error(txt || res.statusText)
+        }
+        toast.success('Email sent successfully!', {
+          style: { background: '#dcfce7', color: '#166534' }
+        })
+      } catch (err) {
+        console.error(err)
+        toast.error(`Failed to send email: ${err.message}`, {
+          style: { background: '#fee2e2', color: '#991b1b' }
+        })
+      } finally {
+        // re-enable the button after a short delay
+        setTimeout(() => setSubmitted(false), 5000);
+      }
   };
 
   // Date range
@@ -213,11 +256,11 @@ export default function SurveyForm() {
         />
 
         <button
-          className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold text-lg hover:bg-blue-700 transition duration-300 mt-6"
           onClick={handleSubmit}
           disabled={submitted}
+          className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold text-lg hover:bg-blue-700 transition duration-300 mt-6"
         >
-          {submitted ? 'Submission Complete' : 'Submit Assessment'}
+          {submitted ? 'Submitting…' : 'Submit Assessment'}
         </button>
     </div>
   );

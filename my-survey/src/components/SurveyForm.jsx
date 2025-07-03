@@ -50,15 +50,19 @@ export default function SurveyForm() {
     let valid = true;
     const newErrors = {};
 
-    // Basic required checks for all except optional/custom fields
     Object.entries(form).forEach(([key, value]) => {
-      // skip “instances” if custom value entered
+      // skip “instances” if custom entered
       if (key === 'instances' && form.instancesCustom.trim()) return;
       // skip “dbSizeValue” if custom entered
       if (key === 'dbSizeValue' && form.dbSizeCustom.trim()) return;
 
+      // *** treat empty-or-all-spaces as empty ***
+      const empty = typeof value === 'string'
+        ? !value.trim()
+        : value === '' || value == null;
+
       if (
-        !value &&
+        empty &&
         !key.endsWith('Custom') &&
         !key.endsWith('Details') &&
         key !== 'infrastructureOtherText'
@@ -240,7 +244,7 @@ export default function SurveyForm() {
   return (
     <div className="bg-white shadow-xl rounded-xl p-8 max-w-xl w-full">
       <Toaster position="bottom-right" />
-        <div className="flex justify-center mb-6">
+        <div className="flex justify-center mb-10">
           <img src="/logo.svg" alt="Company Logo" className="h-16 drop-shadow-lg" />
         </div>
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">

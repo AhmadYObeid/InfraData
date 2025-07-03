@@ -2,8 +2,8 @@ export default function ConditionalInput({ label, value, onChange, show, error, 
   if (!show) return null;
 
   return (
-    <div className="flex flex-col text-left mb-4">
-      <label className={`font-semibold mb-1 ${error ? 'text-red-600' : 'text-black'}`}>
+    <div className="flex flex-col text-left mb-10">
+      <label className={`mb-2 ${error?'text-red-600':'text-black'}`}>
         {label}
       </label>
       <input

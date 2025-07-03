@@ -5,18 +5,12 @@ import TextArea from './inputs/TextArea';
 import RadioGroup from './inputs/RadioGroup';
 import ConditionalInput from './inputs/ConditionalInput';
 
-export default function QuestionGroup({
-  form,
-  errors,
-  onChange,
-  today,
-  maxDate,
-}) {
+export default function QuestionGroup({ form, errors, onChange, today, maxDate }) {
   return (
     <>
       {/* Q1 */}
       <SelectInput
-        label="1) Describe your current infrastructure"
+        label="1. Describe your current infrastructure"
         value={form.infrastructure}
         onChange={val => onChange('infrastructure', val)}
         error={errors.infrastructure}
@@ -33,7 +27,7 @@ export default function QuestionGroup({
 
       {/* Q2 */}
       <TextInput
-        label="2) SQL Server versions you're running"
+        label="2. SQL Server versions you're running"
         value={form.sqlVersions}
         onChange={val => onChange('sqlVersions', val)}
         error={errors.sqlVersions}
@@ -41,23 +35,27 @@ export default function QuestionGroup({
       />
 
       {/* Q3 */}
-      <div className="mb-4 text-left">
-        <label className={`font-semibold mb-1 ${errors.instances || errors.instancesCustom ? 'text-red-600' : 'text-black'}`}>3) Total number of SQL Server instances to migrate</label>
+      <div className="mb-6 text-left">
+        <label
+          className={`${errors.instances||errors.instancesCustom ? 'text-red-600' : 'text-black'} mb-2`}
+        >
+          3. Total number of SQL Server instances to migrate
+        </label>
         <input
           type="range"
           min="1"
-          max="1000"
+          max="50"
           value={form.instancesCustom.trim() ? form.instancesCustom : form.instances || 1}
           onChange={e => {
-            onChange('instancesCustom', '');
-            onChange('instances', e.target.value, true);
+            onChange('instancesCustom', '')
+            onChange('instances', e.target.value, true)
           }}
-          className="w-full"
+          className="w-full mt-6"
         />
-        <div className="flex justify-between items-center text-black mt-1">
+        <div className="flex justify-between items-center text-black mt-3">
           <span className="text-sm italic">Selected: {form.instancesCustom.trim() || form.instances || '1'}</span>
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium">Or specify custom:</label>
+            <label className="text-sm font-normal">Or specify custom:</label>
             <input
               type="number"
               min="1"
@@ -66,10 +64,10 @@ export default function QuestionGroup({
               className={`w-24 border px-2 py-1 rounded text-sm ${errors.instancesCustom ? 'border-red-500' : 'border-gray-300'}`}
               value={form.instancesCustom}
               onChange={e => {
-                const val = e.target.value;
+                const val = e.target.value
                 if (val.length <= 4) {
-                  onChange('instancesCustom', val);
-                  if (val.trim()) onChange('instances', '');
+                  onChange('instancesCustom', val)
+                  if (val.trim()) onChange('instances', '')
                 }
               }}
             />
@@ -78,17 +76,21 @@ export default function QuestionGroup({
       </div>
 
       {/* Q4 */}
-      <div className="mb-4 text-left">
-        <label className={`font-semibold mb-1 ${errors.dbSizeValue || errors.dbSizeCustom ? 'text-red-600' : 'text-black'}`}>4) Approximate total database size</label>
-        <div className="flex items-center gap-4">
+      <div className="mb-6 text-left">
+        <label
+          className={`${errors.dbSizeValue||errors.dbSizeCustom ? 'text-red-600' : 'text-black'} mb-2`}
+        >
+          4. Approximate total database size
+        </label>
+        <div className="flex items-center gap-4 mt-4">
           <input
             type="range"
             min="1"
             max="12500"
             value={form.dbSizeCustom.trim() ? form.dbSizeCustom : form.dbSizeValue || 1}
             onChange={e => {
-              onChange('dbSizeCustom', '');
-              onChange('dbSizeValue', e.target.value, true);
+              onChange('dbSizeCustom', '')
+              onChange('dbSizeValue', e.target.value, true)
             }}
             className="flex-1"
           />
@@ -101,10 +103,10 @@ export default function QuestionGroup({
             <option value="GB">GB</option>
           </select>
         </div>
-        <div className="flex justify-between items-center text-black mt-1">
+        <div className="flex justify-between items-center text-black mt-3">
           <span className="text-sm italic">Selected: {form.dbSizeCustom.trim() || form.dbSizeValue || '1'}</span>
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium">Or specify custom:</label>
+            <label className="text-sm font-normal">Or specify custom:</label>
             <input
               type="number"
               min="1"
@@ -113,10 +115,10 @@ export default function QuestionGroup({
               className={`w-24 border px-2 py-1 rounded text-sm ${errors.dbSizeCustom ? 'border-red-500' : 'border-gray-300'}`}
               value={form.dbSizeCustom}
               onChange={e => {
-                const val = e.target.value;
+                const val = e.target.value
                 if (val.length <= 5) {
-                  onChange('dbSizeCustom', val);
-                  if (val.trim()) onChange('dbSizeValue', '');
+                  onChange('dbSizeCustom', val)
+                  if (val.trim()) onChange('dbSizeValue', '')
                 }
               }}
             />
@@ -126,7 +128,7 @@ export default function QuestionGroup({
 
       {/* Q5 */}
       <TextInput
-        label="5) Types of applications using these databases"
+        label="5. Types of applications using these databases"
         value={form.appTypes}
         onChange={val => onChange('appTypes', val)}
         error={errors.appTypes}
@@ -135,7 +137,7 @@ export default function QuestionGroup({
 
       {/* Q6 */}
       <TextArea
-        label="6) Primary reasons for migrating to Azure"
+        label="6. Primary reasons for migrating to Azure"
         value={form.reasons}
         onChange={val => onChange('reasons', val)}
         error={errors.reasons}
@@ -144,7 +146,7 @@ export default function QuestionGroup({
 
       {/* Q7 */}
       <RadioGroup
-        label="7) Compliance/security requirements (HIPAA, GDPR, etc.)"
+        label="7. Compliance/security requirements (HIPAA, GDPR, etc.)"
         options={['Yes', 'No']}
         value={form.compliance}
         onChange={val => onChange('compliance', val)}
@@ -161,7 +163,7 @@ export default function QuestionGroup({
 
       {/* Q8 */}
       <TextInput
-        label="8) Target go-live date"
+        label="8. Target go-live date"
         type="date"
         value={form.goLive}
         onChange={val => onChange('goLive', val)}
@@ -173,7 +175,7 @@ export default function QuestionGroup({
 
       {/* Q9 */}
       <TextArea
-        label="9) Peak workload times / critical usage periods"
+        label="9. Peak workload times / critical usage periods"
         value={form.peakTimes}
         onChange={val => onChange('peakTimes', val)}
         error={errors.peakTimes}
@@ -182,7 +184,7 @@ export default function QuestionGroup({
 
       {/* Q10 */}
       <TextInput
-        label="10) Acceptable downtime window during migration"
+        label="10. Acceptable downtime window during migration"
         value={form.downtime}
         onChange={val => onChange('downtime', val)}
         error={errors.downtime}
@@ -191,7 +193,7 @@ export default function QuestionGroup({
 
       {/* Q11 */}
       <RadioGroup
-        label="11) Real-time data synchronization required?"
+        label="11. Real-time data synchronization required?"
         options={['Yes', 'No']}
         value={form.syncRequired}
         onChange={val => onChange('syncRequired', val)}
@@ -208,7 +210,7 @@ export default function QuestionGroup({
 
       {/* Q12 */}
       <SelectInput
-        label="12) Preferred Azure SQL deployment model"
+        label="12. Preferred Azure SQL deployment model"
         value={form.deploymentModel}
         onChange={val => onChange('deploymentModel', val)}
         error={errors.deploymentModel}
@@ -225,7 +227,7 @@ export default function QuestionGroup({
 
       {/* Q13 */}
       <RadioGroup
-        label="13) Post-migration optimization or managed services?"
+        label="13. Post-migration optimization or managed services?"
         options={['Yes', 'No']}
         value={form.postMigration}
         onChange={val => onChange('postMigration', val)}

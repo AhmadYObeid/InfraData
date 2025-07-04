@@ -76,13 +76,11 @@ export default function QuestionGroup({ form, errors, onChange, today, maxDate }
       </div>
 
       {/* Q4 */}
-      <div className="mb-6 text-left">
-        <label
-          className={`${errors.dbSizeValue||errors.dbSizeCustom ? 'text-red-600' : 'text-black'} mb-2`}
-        >
+      <div className="mb-10 text-left">
+        <label className={`${errors.dbSizeValue||errors.dbSizeCustom ? 'text-red-600' : 'text-black'} mb-2 block`}>
           4. Approximate total database size
         </label>
-        <div className="flex items-center gap-4 mt-4">
+        <div className="flex items-center gap-2 mt-2">
           <input
             type="range"
             min="1"
@@ -94,17 +92,20 @@ export default function QuestionGroup({ form, errors, onChange, today, maxDate }
             }}
             className="flex-1"
           />
-          <select
-            className="w-20 border border-gray-300 rounded px-2 py-1"
-            value={form.dbSizeUnit}
-            onChange={e => onChange('dbSizeUnit', e.target.value)}
-          >
-            <option value="TB">TB</option>
-            <option value="GB">GB</option>
-          </select>
+          <div className="w-24">
+            <SelectInput
+              label=""
+              value={form.dbSizeUnit}
+              onChange={val => onChange('dbSizeUnit', val)}
+              options={['TB','GB']}
+              error={errors.dbSizeUnit}
+            />
+          </div>
         </div>
         <div className="flex justify-between items-center text-black mt-3">
-          <span className="text-sm italic">Selected: {form.dbSizeCustom.trim() || form.dbSizeValue || '1'}</span>
+          <span className="text-sm italic">
+            Selected: {form.dbSizeCustom.trim() || form.dbSizeValue || '1'}
+          </span>
           <div className="flex items-center gap-2">
             <label className="text-sm font-normal">Or specify custom:</label>
             <input

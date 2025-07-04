@@ -166,6 +166,10 @@ export default function SurveyForm() {
   const FUNCTION_URL = import.meta.env.VITE_EMAIL_FUNCTION_URL;
   const EMAIL_TO     = import.meta.env.VITE_EMAIL_TO || 'ahmed.obeid@zaintech.com';
 
+  // Placeholder user info (will be replaced with actual Microsoft auth later)
+  const USER_EMAIL = 'ahmed.obeid@zaintech.com'; // TODO: Get from Microsoft login
+  const USER_NAME = 'Ahmed Obeid'; // TODO: Get from Microsoft login
+
   const handleSubmit = async () => {
     // run your existing validation
     if (!validateForm()) {
@@ -181,34 +185,36 @@ export default function SurveyForm() {
     });
 
     // build a human-readable, parseable body
-    // pass the submitter email as second arg
-    const emailBody = formatEmailBody(
-      {
-        ...form,
-        infrastructure:
-          form.infrastructure === 'Other Cloud'
-            ? `Other Cloud: ${form.infrastructureOtherText}`
-            : form.infrastructure,
-        instances: form.instancesCustom.trim() || form.instances,
-        dbSizeValue:
-          form.dbSizeCustom.trim()
-            ? `${form.dbSizeCustom} ${form.dbSizeUnit}`
-            : `${form.dbSizeValue} ${form.dbSizeUnit}`,
-      },
-      EMAIL_TO
-    );
+    const emailBody = formatEmailBody({
+      ...form,
+      infrastructure:
+        form.infrastructure === 'Other Cloud'
+          ? `Other Cloud: ${form.infrastructureOtherText}`
+          : form.infrastructure,
+      instances: form.instancesCustom.trim() || form.instances,
+      dbSizeValue:
+        form.dbSizeCustom.trim()
+          ? `${form.dbSizeCustom} ${form.dbSizeUnit}`
+          : `${form.dbSizeValue} ${form.dbSizeUnit}`,
+    });
+
+    // Create subject line with user email
+    const subjectLine = `Windows & SQL Server Migration from: ${USER_EMAIL}`;
 
     console.log('🌐 sending to:', FUNCTION_URL)
+    console.log('📧 subject:', subjectLine)
     try {
         const payload = {
           // required by your email function:
-          name:        'ahmed.obeid@zaintech.com',
-          email:       'ahmed.obeid@zaintech.com',
+          name:        USER_NAME,
+          email:       USER_EMAIL,
           toEmail:     EMAIL_TO,
           companyName: 'MyWebAhmed',
+          subject:     subjectLine,
           message:     emailBody,
         }
         console.log('📨 payload:', payload)
+        console.log('📨 payload JSON:', JSON.stringify(payload, null, 2))
 
         const res = await fetch(FUNCTION_URL, {
           method:  'POST',
@@ -248,7 +254,7 @@ export default function SurveyForm() {
           <img src="/logo.svg" alt="Company Logo" className="h-16 drop-shadow-lg" />
         </div>
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-          SQL Server Migration Assessment
+          Windows & SQL Server Migration
         </h2>
 
         <QuestionGroup

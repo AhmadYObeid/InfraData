@@ -1,11 +1,30 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
+import { PublicClientApplication } from '@azure/msal-browser';
+
 import { formatEmailBody } from './EmailFormatter';
 import QuestionGroup from './QuestionGroup';
+import { isDevelopment, getRedirectUri } from '../utils/environment';
 
 const MAX_DB_SIZE_TB = 12500;
 
+// MSAL configuration
+const msalConfig = {
+  auth: {
+    clientId: import.meta.env.VITE_MSAL_CLIENTID,
+    authority: import.meta.env.VITE_MSAL_AUTHORITY_URL,
+    redirectUri: getRedirectUri(),
+  }
+};
+const msalInstance = new PublicClientApplication(msalConfig);
+const loginRequest = { scopes: ["User.Read"] };
+
 export default function SurveyForm() {
+  const authInit = useRef(false);
+
+  // Debug environment
+  console.log('[ENV]', 'MODE=', import.meta.env.MODE, 'DEV=', import.meta.env.DEV, 'PROD=', import.meta.env.PROD);
+
   const [form, setForm] = useState({
     infrastructure: '',
     infrastructureOtherText: '',
@@ -33,7 +52,53 @@ export default function SurveyForm() {
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({instances: false, dbSize: false});
+  const [user, setUser] = useState(
+    isDevelopment()
+      ? {
+          homeAccountId: "dev-homeAccountId",
+          environment: "dev",
+          tenantId: "dev-tenantId",
+          username: "ahmed.obeid@zaintech.com",
+          localAccountId: "dev-localAccountId",
+          name: "ahmed.obeid@zaintech.com",
+        }
+      : null
+  );
 
+
+  useEffect(() => {
+    if (authInit.current) return;
+    authInit.current = true;
+    const initAuth = async () => {
+      try {
+        // await msal instance initialization
+        await msalInstance.initialize();
+        const response = await msalInstance.handleRedirectPromise();
+        let account = response?.account || msalInstance.getAllAccounts()[0];
+        if (!account) {
+          // Popup login to get account in single page
+          const loginResponse = await msalInstance.loginPopup(loginRequest);
+          account = loginResponse.account;
+        }
+        setUser(account);
+      } catch (e) {
+        // ignore concurrent interaction errors
+        if (e.errorCode === 'interaction_in_progress' || e.message?.includes('Interaction is currently in progress')) {
+          return;
+        }
+        // fallback to redirect if popup fails
+        if (e.errorCode === 'popup_window_error' || e.message?.includes('Error opening popup window')) {
+          msalInstance.loginRedirect(loginRequest);
+          return;
+        }
+        console.error('MSAL authentication error:', e);
+      }
+    };
+    initAuth();
+  }, []);
+
+  // show loading until user is available
+  if (!user) return (<div className="min-h-screen flex items-center justify-center"><p>Loading...</p></div>);
 
   // Generic handler
   const handleChange = (field, value, markTouched = false) => {
@@ -167,8 +232,8 @@ export default function SurveyForm() {
   const EMAIL_TO     = import.meta.env.VITE_EMAIL_TO || 'ahmed.obeid@zaintech.com';
 
   // Placeholder user info (will be replaced with actual Microsoft auth later)
-  const USER_EMAIL = 'ahmed.obeid@zaintech.com'; // TODO: Get from Microsoft login
-  const USER_NAME = 'Ahmed Obeid'; // TODO: Get from Microsoft login
+  const USER_EMAIL = user.username;
+  const USER_NAME = user.name;
 
   const handleSubmit = async () => {
     // run your existing validation
@@ -199,15 +264,15 @@ export default function SurveyForm() {
     });
 
     // Create subject line with user email
-    const subjectLine = `Windows & SQL Server Migration from: ${USER_EMAIL}`;
+    const subjectLine = `Windows & SQL Server Migration from: ${user.username}`;
 
     console.log('🌐 sending to:', FUNCTION_URL)
     console.log('📧 subject:', subjectLine)
     try {
         const payload = {
           // required by your email function:
-          name:        USER_NAME,
-          email:       USER_EMAIL,
+          name:        user.name,
+          email:       user.username,
           toEmail:     EMAIL_TO,
           companyName: 'MyWebAhmed',
           subject:     subjectLine,

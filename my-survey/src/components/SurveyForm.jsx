@@ -1,14 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 import { PublicClientApplication } from '@azure/msal-browser';
+import { Toaster, toast } from 'react-hot-toast';
 
 import { formatEmailBody } from './EmailFormatter';
 import QuestionGroup from './QuestionGroup';
 import { isDevelopment, getRedirectUri } from '../utils/environment';
 
 const MAX_DB_SIZE_TB = 12500;
-
-// MSAL configuration
+// MSAL setup
 const msalConfig = {
   auth: {
     clientId: import.meta.env.VITE_MSAL_CLIENTID,
@@ -17,7 +17,9 @@ const msalConfig = {
   }
 };
 const msalInstance = new PublicClientApplication(msalConfig);
-const loginRequest = { scopes: ["User.Read"] };
+const loginRequest = { scopes: ['User.Read'] };
+// Function URL
+const FUNCTION_URL = import.meta.env.VITE_EMAIL_FUNCTION_URL;
 
 export default function SurveyForm() {
   const authInit = useRef(false);
@@ -58,15 +60,16 @@ export default function SurveyForm() {
           homeAccountId: "dev-homeAccountId",
           environment: "dev",
           tenantId: "dev-tenantId",
-          username: "ahmed.obeid@zaintech.com",
+          username: import.meta.env.VITE_DEV_USER_EMAIL || 'ahmed.obeid@zaintech.com',
+          name:     import.meta.env.VITE_DEV_USER_NAME  || 'Dev User',
           localAccountId: "dev-localAccountId",
-          name: "ahmed.obeid@zaintech.com",
         }
       : null
   );
 
 
   useEffect(() => {
+    if (isDevelopment()) return;
     if (authInit.current) return;
     authInit.current = true;
     const initAuth = async () => {
@@ -228,7 +231,6 @@ export default function SurveyForm() {
   };
 
   // read in your env values
-  const FUNCTION_URL = import.meta.env.VITE_EMAIL_FUNCTION_URL;
   const EMAIL_TO     = import.meta.env.VITE_EMAIL_TO || 'ahmed.obeid@zaintech.com';
 
   // Placeholder user info (will be replaced with actual Microsoft auth later)

@@ -1,11 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
+
 import { formatEmailBody } from './EmailFormatter';
 import QuestionGroup from './QuestionGroup';
+import { isDevelopment } from '../utils/environment';
 
 const MAX_DB_SIZE_TB = 12500;
+// Function URL
+const FUNCTION_URL = import.meta.env.VITE_EMAIL_FUNCTION_URL;
 
-export default function SurveyForm() {
+export default function SurveyForm({ user }) {
+  // Debug environment
+  console.log('[ENV]', 'MODE=', import.meta.env.MODE, 'DEV=', import.meta.env.DEV, 'PROD=', import.meta.env.PROD);
+
   const [form, setForm] = useState({
     infrastructure: '',
     infrastructureOtherText: '',
@@ -30,10 +37,15 @@ export default function SurveyForm() {
     postMigrationDetails: '',
   });
 
+  // status messages (replaces boolean “submitted”)
+  const [status, setStatus] = useState('');
+  // preserve submit‐in‐progress flag for button disabling
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({instances: false, dbSize: false});
 
+  // show loading until user is available
+  if (!user) return (<div className="min-h-screen flex items-center justify-center"><p>Loading...</p></div>);
 
   // Generic handler
   const handleChange = (field, value, markTouched = false) => {
@@ -163,14 +175,13 @@ export default function SurveyForm() {
   };
 
   // read in your env values
-  const FUNCTION_URL = import.meta.env.VITE_EMAIL_FUNCTION_URL;
   const EMAIL_TO     = import.meta.env.VITE_EMAIL_TO || 'ahmed.obeid@zaintech.com';
 
   // Placeholder user info (will be replaced with actual Microsoft auth later)
-  const USER_EMAIL = 'ahmed.obeid@zaintech.com'; // TODO: Get from Microsoft login
-  const USER_NAME = 'Ahmed Obeid'; // TODO: Get from Microsoft login
+  const USER_EMAIL = user.username;
+  const USER_NAME = user.name;
 
-  const handleSubmit = async () => {
+  const submitForm = async () => {
     // run your existing validation
     if (!validateForm()) {
       toast.error('Please correct the highlighted errors.', {
@@ -199,15 +210,15 @@ export default function SurveyForm() {
     });
 
     // Create subject line with user email
-    const subjectLine = `Windows & SQL Server Migration from: ${USER_EMAIL}`;
+    const subjectLine = `Windows & SQL Server Migration from: ${user.username}`;
 
     console.log('🌐 sending to:', FUNCTION_URL)
     console.log('📧 subject:', subjectLine)
     try {
         const payload = {
           // required by your email function:
-          name:        USER_NAME,
-          email:       USER_EMAIL,
+          name:        user.name,
+          email:       user.username,
           toEmail:     EMAIL_TO,
           companyName: 'MyWebAhmed',
           subject:     subjectLine,
@@ -266,7 +277,7 @@ export default function SurveyForm() {
         />
 
         <button
-          onClick={handleSubmit}
+          onClick={submitForm}
           disabled={submitted}
           className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold text-lg hover:bg-blue-700 transition duration-300 mt-6"
         >

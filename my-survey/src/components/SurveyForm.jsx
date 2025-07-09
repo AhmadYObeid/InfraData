@@ -37,6 +37,9 @@ export default function SurveyForm({ user }) {
     postMigrationDetails: '',
   });
 
+  // status messages (replaces boolean “submitted”)
+  const [status, setStatus] = useState('');
+  // preserve submit‐in‐progress flag for button disabling
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({instances: false, dbSize: false});
@@ -178,7 +181,7 @@ export default function SurveyForm({ user }) {
   const USER_EMAIL = user.username;
   const USER_NAME = user.name;
 
-  const handleSubmit = async () => {
+  const submitForm = async () => {
     // run your existing validation
     if (!validateForm()) {
       toast.error('Please correct the highlighted errors.', {
@@ -274,7 +277,7 @@ export default function SurveyForm({ user }) {
         />
 
         <button
-          onClick={handleSubmit}
+          onClick={submitForm}
           disabled={submitted}
           className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold text-lg hover:bg-blue-700 transition duration-300 mt-6"
         >

@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
+// import './App.css'
 import SurveyForm from './components/SurveyForm';
 
 import { PublicClientApplication } from '@azure/msal-browser';

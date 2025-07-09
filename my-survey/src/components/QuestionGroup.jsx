@@ -35,10 +35,8 @@ export default function QuestionGroup({ form, errors, onChange, today, maxDate }
       />
 
       {/* Q3 */}
-      <div className="mb-6 text-left">
-        <label
-          className={`${errors.instances||errors.instancesCustom ? 'text-red-600' : 'text-black'} mb-2`}
-        >
+      <div className="mb-10 text-left">
+        <label className={`block text-gray-700 font-medium ${errors.instances||errors.instancesCustom ? 'text-red-600' : ''}`}>
           3. Total number of SQL Server instances to migrate
         </label>
         <input
@@ -50,80 +48,80 @@ export default function QuestionGroup({ form, errors, onChange, today, maxDate }
             onChange('instancesCustom', '')
             onChange('instances', e.target.value, true)
           }}
-          className="w-full mt-6"
+          className="w-full mt-1"
+          style={{ accentColor: '#0075ff' }}
         />
-        <div className="flex justify-between items-center text-black mt-3">
-          <span className="text-sm italic">Selected: {form.instancesCustom.trim() || form.instances || '1'}</span>
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-normal">Or specify custom:</label>
-            <input
-              type="number"
-              min="1"
-              max="9999"
-              maxLength="4"
-              className={`w-24 border px-2 py-1 rounded text-sm ${errors.instancesCustom ? 'border-red-500' : 'border-gray-300'}`}
-              value={form.instancesCustom}
-              onChange={e => {
-                const val = e.target.value
-                if (val.length <= 4) {
-                  onChange('instancesCustom', val)
-                  if (val.trim()) onChange('instances', '')
-                }
-              }}
-            />
-          </div>
+        <div className="text-sm text-gray-600 mt-1 italic">
+          Selected: {form.instancesCustom.trim() || form.instances || '1'}
+        </div>
+        <div className="flex items-center gap-2 mt-2">
+          <span className="text-sm">Or specify custom:</span>
+          <input
+            type="number"
+            min="1"
+            max="9999"
+            maxLength="4"
+            className={`border rounded px-2 py-1 w-32 ${errors.instancesCustom ? 'border-red-500' : 'border-gray-300'}`}
+            value={form.instancesCustom}
+            onChange={e => {
+              const val = e.target.value
+              if (val.length <= 4) {
+                onChange('instancesCustom', val)
+                if (val.trim()) onChange('instances', '')
+              }
+            }}
+          />
         </div>
       </div>
 
       {/* Q4 */}
       <div className="mb-10 text-left">
-        <label className={`${errors.dbSizeValue||errors.dbSizeCustom ? 'text-red-600' : 'text-black'} mb-2 block`}>
+        <label className={`block text-gray-700 font-medium ${errors.dbSizeValue||errors.dbSizeCustom ? 'text-red-600' : ''}`}>
           4. Approximate total database size
         </label>
-        <div className="flex items-center gap-2 mt-2">
-          <input
-            type="range"
-            min="1"
-            max="12500"
-            value={form.dbSizeCustom.trim() ? form.dbSizeCustom : form.dbSizeValue || 1}
-            onChange={e => {
-              onChange('dbSizeCustom', '')
-              onChange('dbSizeValue', e.target.value, true)
-            }}
-            className="flex-1"
-          />
-          <div className="w-24">
-            <SelectInput
-              label=""
-              value={form.dbSizeUnit}
-              onChange={val => onChange('dbSizeUnit', val)}
-              options={['TB','GB']}
-              error={errors.dbSizeUnit}
-            />
-          </div>
+        <input
+          type="range"
+          min="1"
+          max="12500"
+          value={form.dbSizeCustom.trim() || form.dbSizeValue || 1}
+          onChange={e => {
+            onChange('dbSizeCustom', '')
+            onChange('dbSizeValue', e.target.value, true)
+          }}
+          className="w-full mt-1"
+          style={{ accentColor: '#0075ff' }}
+        />
+        <div className="text-sm text-gray-600 mt-1 italic">
+          Selected: {form.dbSizeCustom.trim() || form.dbSizeValue || '1'} {form.dbSizeUnit}
         </div>
-        <div className="flex justify-between items-center text-black mt-3">
-          <span className="text-sm italic">
-            Selected: {form.dbSizeCustom.trim() || form.dbSizeValue || '1'}
-          </span>
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-normal">Or specify custom:</label>
-            <input
-              type="number"
-              min="1"
-              max="125000"
-              maxLength="5"
-              className={`w-24 border px-2 py-1 rounded text-sm ${errors.dbSizeCustom ? 'border-red-500' : 'border-gray-300'}`}
-              value={form.dbSizeCustom}
-              onChange={e => {
-                const val = e.target.value
-                if (val.length <= 5) {
-                  onChange('dbSizeCustom', val)
-                  if (val.trim()) onChange('dbSizeValue', '')
-                }
-              }}
-            />
-          </div>
+        <div className="mt-2">
+          <span className="text-sm">Or custom size:</span>
+          <input
+            type="number"
+            min="1"
+            max="125000"
+            maxLength="5"
+            className={`ml-2 border rounded px-2 py-1 w-32 ${errors.dbSizeCustom ? 'border-red-500' : 'border-gray-300'}`}
+            value={form.dbSizeCustom}
+            onChange={e => {
+              const val = e.target.value
+              if (val.length <= 5) {
+                onChange('dbSizeCustom', val)
+                if (val.trim()) onChange('dbSizeValue', '')
+              }
+            }}
+          />
+        </div>
+        <div className="flex items-center gap-2 mt-2">
+          <span className="text-sm">Unit:</span>
+          <select
+            value={form.dbSizeUnit}
+            onChange={e => onChange('dbSizeUnit', e.target.value)}
+            className={`border rounded px-2 py-1 w-20 ${errors.dbSizeUnit ? 'border-red-500' : 'border-gray-300'}`}
+          >
+            <option>GB</option>
+            <option>TB</option>
+          </select>
         </div>
       </div>
 

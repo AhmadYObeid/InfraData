@@ -1,8 +1,24 @@
-// src/utils/environment.ts
-// Helper functions to detect the current environment (Vite)
-export const isProduction = (): boolean => import.meta.env.PROD;
-export const isDevelopment = (): boolean => import.meta.env.DEV;
+interface ImportMetaEnv {
+  readonly PROD: boolean;
+  readonly DEV: boolean;
+  readonly VITE_REDIRECT_URI?: string;
+}
+
+declare global {
+  interface ImportMeta {
+    readonly env: ImportMetaEnv;
+  }
+}
+
+export const isProduction = () => {
+  return import.meta.env.PROD === true;
+};
+
+export const isDevelopment = () => {
+  return import.meta.env.DEV === true;
+};
+
 export const getRedirectUri = (): string => {
-  // Use configured VITE_AUTH_REDIRECT_URI if provided, else current origin
-  return import.meta.env.VITE_AUTH_REDIRECT_URI || window.location.origin;
+  // Use VITE_REDIRECT_URI if set, otherwise default to current origin
+  return import.meta.env.VITE_REDIRECT_URI || window.location.origin;
 };
